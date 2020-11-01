@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: service-registry-center-artifact-build
+spec:
+  output:
+    to:
+      kind: DockerImage
+      name: registry.felix.com/artifacts/s2i-builder-image:latest
+    pushSecret:
+      name: docker-registry
+  source:
+    git:
+      uri: https://github.com/SZFelixHuang/service-registry-center.git
+    type: Git
+  secrets:
+    - secret:
+        name: github
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: s2i-builder-image:latest
+      pullSecret:
+        name: docker-registry
+    type: Source

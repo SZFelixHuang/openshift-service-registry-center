@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: service-registry-center-artifact-build
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: registry.felix.com/artifacts/s2i-builder-image-1.0:latest
+  source:
+    git:
+      uri: https://github.com/SZFelixHuang/service-registry-center.git
+    type: Git
+  secrets:
+    - secret:
+        name: github
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: s2i-builder-image:latest
+      pullSecret:
+        name: "docker-registry"
+    type: Source
+---
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: service-registry-center-image-build
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: service-registry-center:latest
+  source:
+    type: Dockerfile
+    dockerfile: |-
+      FROM  registry.felix.com/devops/runtime-image:latest
+      COPY sservice-registry-center-1.0.jar /sservice-registry-center-1.0.jar 
+    images:
+    - from:
+        kind: ImageStreamTag
+        name: service-registry-center-artifact-build:latest
+      paths:
+      - sourcePath: /tmp/src/target
+        destinationDir: "."
+  secrets:
+    - secret:
+        name: github
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: runtime-image:latest
+    type: Dockerfile
+  triggers:
+  - imageChanges: {}
+    type: ImageChange
+    
