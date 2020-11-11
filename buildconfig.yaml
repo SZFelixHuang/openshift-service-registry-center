@@ -5,12 +5,14 @@ metadata:
 spec:
   output:
     to:
-      kind: ImageStreamTag
-      name: registry.felix.com/artifacts/s2i-builder-image-1.0:latest
+      kind: DockerImage
+      name: registry.felix.com/service-registry-center/artifact-image:latest
+    pushSecret:
+      name: docker-registry
   source:
+    type: Git
     git:
       uri: https://github.com/SZFelixHuang/service-registry-center.git
-    type: Git
   secrets:
     - secret:
         name: github
@@ -20,40 +22,40 @@ spec:
         kind: ImageStreamTag
         name: s2i-builder-image:latest
       pullSecret:
-        name: "docker-registry"
+        name: docker-registry
     type: Source
 ---
 apiVersion: v1
 kind: BuildConfig
 metadata:
-  name: service-registry-center-image-build
+  name: service-registry-center-runtime-build
 spec:
   output:
     to:
-      kind: ImageStreamTag
-      name: service-registry-center:latest
+      kind: DockerImage
+      name: registry.felix.com/service-registry-center/runtime-image:latest
+    pushSecret:
+      name: docker-registry
   source:
     type: Dockerfile
-    dockerfile: |-
-      FROM  registry.felix.com/devops/runtime-image:latest
-      COPY sservice-registry-center-1.0.jar /sservice-registry-center-1.0.jar 
+    dockerfile: "FROM runtime-image:latest\nCOPY service-registry-center-1.0.jar /deployments/service-registry-center-1.0.jar"
     images:
     - from:
         kind: ImageStreamTag
-        name: service-registry-center-artifact-build:latest
+        name: service-registry-center-artifact-image:latest
+      pullSecret:
+        name: docker-registry
       paths:
-      - sourcePath: /tmp/src/target
+      - sourcePath: /tmp/src/target/service-registry-center-1.0.jar
         destinationDir: "."
-  secrets:
-    - secret:
-        name: github
   strategy:
-    sourceStrategy:
+    dockerStrategy:
       from:
         kind: ImageStreamTag
         name: runtime-image:latest
-    type: Dockerfile
+      pullSecret:
+        name: docker-registry
+    type: Docker
   triggers:
-  - imageChanges: {}
+  - imageChange: {}
     type: ImageChange
-    
