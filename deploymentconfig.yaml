@@ -12,7 +12,8 @@ spec:
         - name: docker-registry
       containers:
         - name: service-registry-center
-          image: registry.felix.com/service-registry-center/runtime-image
+          image: service-registry-center-runtime-image:latest
+          forcePull: true 
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -25,8 +26,9 @@ spec:
         containerNames:
           - service-registry-center
         from:
-          kind: DockerImage
-          name: registry.felix.com/service-registry-center/runtime-image:latest
+          kind: ImageStreamTag
+          name: service-registry-center-runtime-image:latest
+        forcePull: true 
   strategy: 
     type: Rolling
   paused: false 
