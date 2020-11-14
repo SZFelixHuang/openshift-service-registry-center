@@ -1,0 +1,34 @@
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: service-registry-center
+spec:
+  template: 
+    metadata:
+      labels:
+        name: service-registry-center
+    spec:
+      imagePullSecrets:
+        - name: docker-registry
+      containers:
+        - name: service-registry-center
+          image: service-registry-center-runtime-image
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+  replicas: 1
+  triggers:
+    - type: ConfigChange 
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - service-registry-center
+        from:
+          kind: ImageStreamTag
+          name: service-registry-center-runtime-image:latest
+  strategy: 
+    type: Rolling
+  paused: false 
+  revisionHistoryLimit: 2 
+  minReadySeconds: 0 

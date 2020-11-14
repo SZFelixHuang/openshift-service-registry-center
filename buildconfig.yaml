@@ -38,7 +38,10 @@ spec:
       name: docker-registry
   source:
     type: Dockerfile
-    dockerfile: "FROM runtime-image:latest\nCOPY service-registry-center-1.0.jar /deployments/service-registry-center-1.0.jar"
+    dockerfile: |- 
+      FROM runtime-image:latest 
+      COPY service-registry-center-1.0.jar /service-registry-center-1.0.jar 
+      ENTRYPOINT ['java','-jar','/service-registry-center-1.0.jar']
     images:
     - from:
         kind: ImageStreamTag

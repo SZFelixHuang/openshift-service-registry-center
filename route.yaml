@@ -1,0 +1,13 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: service-registry-center-route
+  labels:
+    name: service-registry-center-route
+spec:
+  host: service-registry-center.apps.felix.com
+  to:
+    kind: Service
+    name: service-registry-center-svc
+    weight: 100
+  wildcardPolicy: None
