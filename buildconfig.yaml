@@ -11,16 +11,16 @@ spec:
       name: docker-registry
   source:
     type: Git
+    sourceSecret:
+      name: github
     git:
       uri: https://github.com/SZFelixHuang/service-registry-center.git
-  secrets:
-    - secret:
-        name: github
+      ref: master
   strategy:
     sourceStrategy:
       from:
-        kind: ImageStreamTag
-        name: s2i-builder-image:latest
+        kind: DockerImage
+        name: registry.felix.com/devops/s2i-builder-image:latest
       pullSecret:
         name: docker-registry
     type: Source
@@ -39,13 +39,14 @@ spec:
   source:
     type: Dockerfile
     dockerfile: |- 
-      FROM runtime-image:latest 
+      FROM registry.felix.com/service-registry-center/runtime-image:latest 
       COPY service-registry-center-1.0.jar /service-registry-center-1.0.jar 
-      ENTRYPOINT ['java','-jar','/service-registry-center-1.0.jar']
+      ENTRYPOINT ["java","-jar","/service-registry-center-1.0.jar"]
     images:
     - from:
-        kind: ImageStreamTag
-        name: service-registry-center-artifact-image:latest
+        kind: DockerImage
+        name: registry.felix.com/service-registry-center/artifact-image:latest
+      forcePull: true 
       pullSecret:
         name: docker-registry
       paths:
@@ -54,8 +55,8 @@ spec:
   strategy:
     dockerStrategy:
       from:
-        kind: ImageStreamTag
-        name: runtime-image:latest
+        kind: DockerImage
+        name: registry.felix.com/devops/runtime-image:latest
       pullSecret:
         name: docker-registry
     type: Docker
