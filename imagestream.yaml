@@ -2,6 +2,31 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   annotations:
+    openshift.io/display-name: service-registry-center-artifact-image
+  generation: 4
+  name: service-registry-center-artifact-image
+spec:
+  lookupPolicy:
+    local: false
+  dockerImageRepository: 'registry.felix.com/service-registry-center/artifact-image'
+  tags:
+    - annotations:
+        openshift.io/display-name: openshift service-registry-center-artifact-image
+        openshift.io/provider-display-name: 'Felix'
+        tags: 'service-registry-center-artifact-image'
+        version: latest
+      from:
+        kind: DockerImage
+        name: 'service-registry-center-artifact-image:latest'
+      pullSecret:
+        name: docker-registry
+      generation: 4
+      name: 'latest'
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
     openshift.io/display-name: service-registry-center-runtime-image
   generation: 4
   name: service-registry-center-runtime-image
@@ -17,8 +42,8 @@ spec:
         version: latest
       from:
         kind: DockerImage
-        name: 'runtime-image:latest'
+        name: 'service-registry-center-runtime-image:latest'
       pullSecret:
         name: docker-registry
       generation: 4
-      name: 'latest'
+      name: 'latest'      
