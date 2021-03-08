@@ -12,9 +12,9 @@ spec:
   source:
     type: Git
     sourceSecret:
-      name: github
+      name: gitlab
     git:
-      uri: https://github.com/SZFelixHuang/service-registry-center.git
+      uri: http://gitlab.felix.com/root/service-registry-center.git
       ref: master
   strategy:
     sourceStrategy:

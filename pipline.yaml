@@ -6,48 +6,88 @@ spec:
   strategy:
     jenkinsPipelineStrategy:
       jenkinsfile: |-
-        try{
-            timeout(time: 90, unit: 'MINUTES'){
-                stage('build-artifact-image') {                    
-                    openshift.withCluster() {
-                        openshift.withProject("spring-cloud") {
-                           def builds = openshift.selector("bc", "service-registry-center-artifact-build").related('builds')
-                           timeout(40) {
-                                builds.untilEach(1) {
-                                    return (it.object().status.phase == "Complete")
+        pipeline {
+            agent any
+            stages {
+                stage('build-artifact-image') {                 
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.withProject("spring-cloud") {
+                                    def buildSelector = openshift.selector("bc", "service-registry-center-artifact-build");
+                                    buildSelector.logs('-f');
+                                    buildSelector.startBuild();
+                                    def builds = buildSelector.related('builds')
+                                    builds.watch {
+                                        echo "So far, service-registry-center-artifact-build has created builds: ${it.names()}"
+                                        return it.count() > 0
+                                    }
+                                    builds.watch {
+                                        if ( it.count() == 0 ) return false
+                                        def allDone = true
+                                        it.withEach {
+                                            def buildModel = it.object();
+                                            if ( it.object().status.phase != "Complete" ) {
+                                                allDone = false
+                                            }
+                                        }
+                                        return allDone;
+                                    }
+                                    builds.untilEach(1) {
+                                        return it.object().status.phase == "Complete"
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 stage('build-runtime-image') {
-                    openshift.withCluster() {
-                        openshift.withProject("spring-cloud") {
-                           def builds = openshift.selector("bc", "service-registry-center-runtime-build").related('builds')
-                           timeout(20) {
-                                builds.untilEach(1) {
-                                    return (it.object().status.phase == "Complete")
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.withProject("spring-cloud") {
+                                   def buildSelector = openshift.selector("bc", "service-registry-center-runtime-build");
+                                   buildSelector.logs('-f');
+                                   buildSelector.startBuild();
+                                   def builds = buildSelector.related('builds')
+                                    builds.watch {
+                                        echo "So far, service-registry-center-runtime-build has created builds: ${it.names()}"
+                                        return it.count() > 0
+                                    }
+                                    builds.watch {
+                                        if ( it.count() == 0 ) return false
+                                        def allDone = true
+                                        it.withEach {
+                                            def buildModel = it.object();
+                                            if ( it.object().status.phase != "Complete" ) {
+                                                allDone = false
+                                            }
+                                        }
+                                        return allDone;
+                                    }
+                                    builds.untilEach(1) {
+                                        return it.object().status.phase == "Complete"
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 stage('deployment-runtime-image') {
-                    openshift.withCluster() {
-                        openshift.withProject("spring-cloud") {
-                           def rm = openshift.selector("dc", "service-registry-center").rollout().latest()
-                           timeout(30) {
-                                openshift.selector("dc", "service-registry-center").related('pods').untilEach(1) {
-                                    return (it.object().status.phase == "Running")
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.withProject("spring-cloud") {
+                                    def dcSelector = openshift.selector("dc", "service-registry-center");
+                                    def rm = dcSelector.rollout().latest();
+                                    dcSelector.related('pods').untilEach(1) {
+                                        return (it.object().status.phase == "Running")
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        } catch(err){
-                echo "${err}"
-                currentBuild.result = 'Failture'
-                throw err
-        }
+         }
     type: JenkinsPipeline
