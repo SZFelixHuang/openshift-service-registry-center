@@ -73,21 +73,6 @@ spec:
                         }
                     }
                 }
-                stage('deployment-runtime-image') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.withProject("spring-cloud") {
-                                    def dcSelector = openshift.selector("dc", "service-registry-center");
-                                    def rm = dcSelector.rollout().latest();
-                                    dcSelector.related('pods').untilEach(1) {
-                                        return (it.object().status.phase == "Running")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
          }
     type: JenkinsPipeline
