@@ -17,24 +17,31 @@ spec:
                                     def buildSelector = openshift.selector("bc", "service-registry-center-artifact-build");
                                     buildSelector.logs('-f');
                                     buildSelector.startBuild();
-                                    def builds = buildSelector.related('builds')
+                                    def builds = buildSelector.related('builds');
                                     builds.watch {
-                                        echo "So far, service-registry-center-artifact-build has created builds: ${it.names()}"
-                                        return it.count() > 0
+                                     def isRunning = false;
+                                     it.withEach {
+                                        if(it.object().status.phase == "Running"){
+                                            echo "bc [service-registry-center-artifact-build] has created build: ${it.object().metadata.name}";
+                                            isRunning = true;
+                                        }
+                                     }
+                                     return isRunning;
                                     }
                                     builds.watch {
-                                        if ( it.count() == 0 ) return false
+                                        if ( it.count() == 0 ) return false;
                                         def allDone = true
                                         it.withEach {
-                                            def buildModel = it.object();
+                                            def buildModel = it.object() 
                                             if ( it.object().status.phase != "Complete" ) {
+                                                echo "${it.object().metadata.name} is in '${it.object().status.phase}' status.";
                                                 allDone = false
                                             }
                                         }
+                                        if(allDone){
+                                            echo "artifact building was completed.";
+                                        }
                                         return allDone;
-                                    }
-                                    builds.untilEach(1) {
-                                        return it.object().status.phase == "Complete"
                                     }
                                 }
                             }
@@ -46,27 +53,34 @@ spec:
                         script {
                             openshift.withCluster() {
                                 openshift.withProject("spring-cloud") {
-                                   def buildSelector = openshift.selector("bc", "service-registry-center-runtime-build");
-                                   buildSelector.logs('-f');
-                                   buildSelector.startBuild();
-                                   def builds = buildSelector.related('builds')
+                                    def buildSelector = openshift.selector("bc", "service-registry-center-runtime-build");
+                                    buildSelector.logs('-f');
+                                    buildSelector.startBuild();
+                                    def builds = buildSelector.related('builds');
                                     builds.watch {
-                                        echo "So far, service-registry-center-runtime-build has created builds: ${it.names()}"
-                                        return it.count() > 0
+                                       def isDone = false;
+                                       it.withEach {
+                                        if(it.object().status.phase == "Running"){
+                                            echo "bc [service-registry-center-runtime-build] has created build: ${it.object().metadata.name}";
+                                            isDone = true;
+                                        }
+                                     }
+                                     return isDone;
                                     }
                                     builds.watch {
-                                        if ( it.count() == 0 ) return false
-                                        def allDone = true
+                                        if ( it.count() == 0 ) return false;
+                                        def allDone = true;
                                         it.withEach {
-                                            def buildModel = it.object();
+                                            def buildModel = it.object() 
                                             if ( it.object().status.phase != "Complete" ) {
+                                                echo "${it.object().metadata.name} is in '${it.object().status.phase}' status.";
                                                 allDone = false
                                             }
                                         }
+                                        if(allDone){
+                                            echo "artifact building was completed.";
+                                        }
                                         return allDone;
-                                    }
-                                    builds.untilEach(1) {
-                                        return it.object().status.phase == "Complete"
                                     }
                                 }
                             }
