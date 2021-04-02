@@ -22,7 +22,6 @@ spec:
     - type: ConfigChange 
     - type: ImageChange
       imageChangeParams:
-        automatic: true
         containerNames:
           - service-registry-center
         from:
