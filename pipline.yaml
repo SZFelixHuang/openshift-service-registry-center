@@ -15,8 +15,8 @@ spec:
                             openshift.withCluster() {
                                 openshift.withProject("spring-cloud") {
                                     def buildSelector = openshift.selector("bc", "service-registry-center-artifact-build");
-                                    buildSelector.logs('-f');
                                     buildSelector.startBuild();
+                                    buildSelector.logs('-f');
                                     def builds = buildSelector.related('builds');
                                     builds.watch {
                                      def isRunning = false;
@@ -54,8 +54,8 @@ spec:
                             openshift.withCluster() {
                                 openshift.withProject("spring-cloud") {
                                     def buildSelector = openshift.selector("bc", "service-registry-center-runtime-build");
-                                    buildSelector.logs('-f');
                                     buildSelector.startBuild();
+                                    buildSelector.logs('-f');
                                     def builds = buildSelector.related('builds');
                                     builds.watch {
                                        def isDone = false;
@@ -82,6 +82,30 @@ spec:
                                         }
                                         return allDone;
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('update-artifact-image'){
+                    steps {
+                        sh "oc project spring-cloud"
+                        sh " oc import-image service-registry-center-artifact-image --all --confirm --scheduled || true"
+                    }
+                }
+                stage('update-runtime-image'){
+                    steps {
+                        sh "oc project spring-cloud"
+                        sh " oc import-image service-registry-center-runtime-image --all --confirm --scheduled || true"
+                    }
+                }
+                stage('deployment-runtime-image') {
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.withProject("spring-cloud") {
+                                   def deploymentSelector = openshift.selector("dc", "service-registry-center");
+                                   deploymentSelector.rollout().latest();
                                 }
                             }
                         }
