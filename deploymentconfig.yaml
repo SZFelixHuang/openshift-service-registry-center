@@ -13,6 +13,9 @@ spec:
       containers:
         - name: service-registry-center
           image: service-registry-center-runtime-image:latest
+          envFrom: 
+            - configMapRef:
+                name: service-registry-center-configmaps
           forcePull: true 
           ports:
             - containerPort: 8080
