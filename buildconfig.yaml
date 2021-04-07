@@ -41,7 +41,7 @@ spec:
     dockerfile: |- 
       FROM registry.felix.com/service-registry-center/runtime-image:latest 
       COPY service-registry-center-1.0.jar /service-registry-center-1.0.jar 
-      ENTRYPOINT ["java","-jar","/service-registry-center-1.0.jar"]
+      ENTRYPOINT ["java","-jar", "-Dspring.profiles.active=${profile}", "/service-registry-center-1.0.jar"]
     images:
     - from:
         kind: DockerImage

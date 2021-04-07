@@ -21,9 +21,12 @@ spec:
                                     builds.watch {
                                      def isRunning = false;
                                      it.withEach {
-                                        if(it.object().status.phase == "Running"){
+                                        if(it.object().status.phase == "Running" || it.object().status.phase == "Complete"){
                                             echo "bc [service-registry-center-artifact-build] has created build: ${it.object().metadata.name}";
                                             isRunning = true;
+                                        }
+                                        else{
+                                            echo "current build status: ${it.object().status.phase}";
                                         }
                                      }
                                      return isRunning;
@@ -60,7 +63,7 @@ spec:
                                     builds.watch {
                                        def isDone = false;
                                        it.withEach {
-                                        if(it.object().status.phase == "Running"){
+                                        if(it.object().status.phase == "Running" || it.object().status.phase == "Complete"){
                                             echo "bc [service-registry-center-runtime-build] has created build: ${it.object().metadata.name}";
                                             isDone = true;
                                         }

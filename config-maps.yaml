@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: service-registry-center-configmaps
 data:
-  spring.profiles.active: dev
+  profile: dev
