@@ -3,8 +3,9 @@ kind: ConfigMap
 metadata:
   name: service-registry-center-configmaps
 data:
+
   profile: dev
   applicationName: platform-service-registry-center
-  serverPort: 80
-  self-preservation: false
-  defaultZone: http://service-registry-center.apps.felix.com/default/
+  serverPort: '80'
+  defaultZone: ' http://service-registry-center.apps.felix.com/default/'
+  self-preservation: 'false'
