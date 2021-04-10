@@ -5,7 +5,7 @@ metadata:
 data:
 
   profile: dev
-  applicationName: platform-service-registry-center
+  applicationName: service-registry-center
   serverPort: '8080'
   defaultZone: ' http://service-registry-center.apps.felix.com/eureka/'
   self-preservation: 'false'
