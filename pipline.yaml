@@ -20,31 +20,20 @@ spec:
                                     def builds = buildSelector.related('builds');
                                     builds.watch {
                                      def isRunning = false;
+                                     def currentRunningBuild;
                                      it.withEach {
-                                        if(it.object().status.phase == "Running" || it.object().status.phase == "Complete"){
-                                            echo "bc [service-registry-center-artifact-build] has created build: ${it.object().metadata.name}";
+                                        if(it.object().status.phase == "Running"){
+                                            currentRunningBuild = ${it.object()};
                                             isRunning = true;
                                         }
-                                        else{
-                                            echo "current build status: ${it.object().status.phase}";
-                                        }
                                      }
-                                     return isRunning;
-                                    }
-                                    builds.watch {
-                                        if ( it.count() == 0 ) return false;
-                                        def allDone = true
-                                        it.withEach {
-                                            def buildModel = it.object() 
-                                            if ( it.object().status.phase != "Complete" ) {
-                                                echo "${it.object().metadata.name} is in '${it.object().status.phase}' status.";
-                                                allDone = false
-                                            }
-                                        }
-                                        if(allDone){
-                                            echo "artifact building was completed.";
-                                        }
-                                        return allDone;
+                                     if(isRunning){
+                                        echo "The build ${currentRunningBuild.metadata.name} is ${currentRunningBuild.status.phase}.";
+                                     }
+                                     else{
+                                        echo "All artifact builds were completed."
+                                     }
+                                     return !isRunning;
                                     }
                                 }
                             }
@@ -61,29 +50,21 @@ spec:
                                     buildSelector.logs('-f');
                                     def builds = buildSelector.related('builds');
                                     builds.watch {
-                                       def isDone = false;
-                                       it.withEach {
-                                        if(it.object().status.phase == "Running" || it.object().status.phase == "Complete"){
-                                            echo "bc [service-registry-center-runtime-build] has created build: ${it.object().metadata.name}";
-                                            isDone = true;
+                                     def isRunning = false;
+                                     def currentRunningBuild;
+                                     it.withEach {
+                                        if(it.object().status.phase == "Running"){
+                                            currentRunningBuild = ${it.object()};
+                                            isRunning = true;
                                         }
                                      }
-                                     return isDone;
-                                    }
-                                    builds.watch {
-                                        if ( it.count() == 0 ) return false;
-                                        def allDone = true;
-                                        it.withEach {
-                                            def buildModel = it.object() 
-                                            if ( it.object().status.phase != "Complete" ) {
-                                                echo "${it.object().metadata.name} is in '${it.object().status.phase}' status.";
-                                                allDone = false
-                                            }
-                                        }
-                                        if(allDone){
-                                            echo "artifact building was completed.";
-                                        }
-                                        return allDone;
+                                     if(isRunning){
+                                        echo "The build ${currentRunningBuild.metadata.name} is ${currentRunningBuild.status.phase}.";
+                                     }
+                                     else{
+                                        echo "All runtime builds were completed."
+                                     }
+                                     return !isRunning;
                                     }
                                 }
                             }
