@@ -15,7 +15,7 @@ spec:
       name: gitlab
     git:
       uri: http://gitlab.felix.com/root/service-registry-center.git
-      ref: main
+      ref: master
   strategy:
     sourceStrategy:
       from:
